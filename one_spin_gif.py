@@ -6,22 +6,23 @@ from matplotlib.animation import FuncAnimation
 from one_spin_LLG import A_spin
 
 class one_spin_gif(A_spin):
-    def __init__(self,alpha,gamma,B,S0,t,plotB):
-        super().__init__(alpha,gamma,B,S0,t)
+    def __init__(self,alpha,gamma,B,S0,t,t_eval,plotB):
+        super().__init__(alpha,gamma,B,S0,t,t_eval)
         self.plotB = plotB
 
     def get_spin_vec(self,t):
         Ox, Oy, Oz = 0, 0, 0
-        x = self.S[t][0]
-        y = self.S[t][1]
-        z = self.S[t][2]
+        x = self.S[0][t]
+        y = self.S[1][t]
+        z = self.S[2][t]
         self.ax.plot(x, y, z, marker='o', markersize=2.5, color='b')
         return Ox, Oy, Oz, x, y, z
 
     def make_gif(self):
         self.fig, self.ax = plt.subplots(subplot_kw=dict(projection="3d"))
 
-        self.S = sc.integrate.odeint(self.func_S, self.S0, self.t)
+        self.Sol = sc.integrate.solve_ivp(self.func_S, self.t, self.S0, t_eval=self.t_eval)
+        self.S = self.Sol.y
 
         self.quiveraa = self.ax.quiver(*self.get_spin_vec(0))
 
@@ -48,16 +49,17 @@ class one_spin_gif(A_spin):
         self.ax.set_zlim(-1.2, 1.2)
         self.ax.set_aspect('equal')
 
-        ani = FuncAnimation(self.fig, self.update, frames=len(self.t), interval=1)
-        # ani.save("reverse_spin.gif",writer='imagemagick')
+        ani = FuncAnimation(self.fig, self.update, frames=len(self.Sol.t), interval=1)
+        #ani.save("dunp_aspin.gif",writer='imagemagick')
         plt.show()
 
 if __name__ == '__main__':
-    S0 = [0.1, 0, -0.9]
+    S0 = [0, 0, -0.9]
 
-    t = np.linspace(0, 150, 15000)  # t(時間)が0〜100まで動き、その時のfを求める。
+    t = [0, 0.5]  # t(時間)が0〜100まで動き、その時のfを求める。
+    t_eval = np.linspace(*t, 1000)
 
     plotB = [[0,0,-1.2],[0,0,2.4]]
 
-    spin = one_spin_gif(0, 1, [0, 0, 5], S0, t,plotB)
+    spin = one_spin_gif(0.1, -28, [0, 0, -4], S0, t,t_eval,plotB)
     spin.make_gif()

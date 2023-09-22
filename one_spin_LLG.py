@@ -1,3 +1,4 @@
+
 import scipy as sc
 import numpy as np
 import matplotlib.pyplot as plt
@@ -5,18 +6,19 @@ from mpl_toolkits.mplot3d import Axes3D
 from matplotlib.animation import FuncAnimation
 
 class A_spin():
-    def __init__(self,alpha,gamma,B,S0,t):
+    def __init__(self,alpha,gamma,B,S0,t, t_eval):
         self.alpha = alpha  #緩和項をどれくらい大きく入れるか
         self.gamma = gamma  #LLg方程式のγ
         self.B = B          #外部磁場(tで時間変化させてもいいよ)
         self.S0 = S0        #初期のスピンの向き
         self.t = t          #どれくらいの時間でやるか
+        self.t_eval = t_eval #ステップ数はどうするか
         self.S = []
         self.ax = 0         #pltのオブジェクト
         self.fig = 0        #pltのオブジェクト
         self.quiveraa = 0
 
-    def func_S(self,S,t):  # 関数を設定
+    def func_S(self,t,S):  # 関数を設定
         B = self.B
         Snorm = np.linalg.norm(S)
         dSxdt = - self.gamma * (B[1] * S[2] - B[2] * S[1]) - (self.gamma * self.alpha/Snorm) * (S[1] * (S[0] * B[1] - S[1] * B[0]) - S[2]* (S[2] * B[0] - S[0] * B[2]))
@@ -28,9 +30,9 @@ class A_spin():
 
     def get_spin_vec(self,t):
         Ox,Oy,Oz = 0,0,0
-        x = self.S[t][0]
-        y = self.S[t][1]
-        z = self.S[t][2]
+        x = self.S[0][t]
+        y = self.S[1][t]
+        z = self.S[2][t]
         return Ox, Oy, Oz, x, y, z
 
 
@@ -41,7 +43,8 @@ class A_spin():
     def doit(self):
         self.fig, self.ax = plt.subplots(subplot_kw=dict(projection="3d"))
 
-        self.S = sc.integrate.odeint(self.func_S, self.S0, self.t)
+        self.Sol = sc.integrate.solve_ivp(self.func_S,self.t, self.S0, t_eval=self.t_eval)
+        self.S = self.Sol.y
 
 
         self.quiveraa = self.ax.quiver(*self.get_spin_vec(0))
@@ -50,14 +53,15 @@ class A_spin():
         self.ax.set_ylim(-2, 2)
         self.ax.set_zlim(-2, 2)
 
-        ani = FuncAnimation(self.fig, self.update, frames=len(t), interval=1)
+        ani = FuncAnimation(self.fig, self.update, frames=len(self.Sol.t), interval=100)
         # ani.save("reverse_spin.gif",writer='imagemagick')
         plt.show()
 
 if __name__ == '__main__':
     S0 = [0.1, 0, -0.9]
 
-    t = np.linspace(0, 1500, 1500)  # t(時間)が0〜100まで動き、その時のfを求める。
+    t = [0,1500] # t(時間)が0〜100まで動き、その時のfを求める。
+    t_eval = np.linspace(*t, 100)
 
-    spin = A_spin(0.01,0.1,[0,0,5],S0,t)
+    spin = A_spin(0.01,-0.1,[0,0,-5],S0,t,t_eval)
     spin.doit()
