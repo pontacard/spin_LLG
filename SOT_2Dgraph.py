@@ -3,8 +3,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from SOT import SOT
 class SOT_2D(SOT):
-    def __init__(self,alpha,gamma,B,S0,t,t_eval,spin_flow):
-        super().__init__(alpha,gamma,B,S0,t,t_eval,spin_flow)
+    def __init__(self,alpha,gamma,B,S0,t,t_eval,spin_flow,K,sc,fi,start,stop):
+        super().__init__(alpha,gamma,B,S0,t,t_eval,spin_flow,K,sc,fi,start,stop)
 
 
     def get_graph(self):
@@ -35,17 +35,17 @@ class SOT_2D(SOT):
         #plt.axhline(color = 'k')
         plt.legend()
 
-        #plt.savefig("TypeZ_Hx0.1_10000step_xyzS.pdf")
+        plt.savefig("TypeY_0-0.03_4000step_xyzS.pdf")
         plt.show()
 
 
 if __name__ == '__main__':
-    S0 =  [0,0, -1]
+    S0 = [0, 0, -1]
 
-    t = [0, 1]  # t(時間)が0〜100まで動き、その時のfを求める。
-    t_eval = np.linspace(*t, 10000)
+    t = [0, 1.2]  # t(時間)が0〜100まで動き、その時のfを求める。
+    t_eval = np.linspace(*t, 4000)
 
     plotB = [[0, 0, -1.2], [0, 0, 2.4]]
 
-    spin = SOT_2D(0.1, -28, [0.01, 0, -4], S0, t, t_eval, [0, -10, 0])
+    spin = SOT_2D(0.1, 28, [0.01, 0, 0], S0, t, t_eval, [0,0, -60], 84,0.1,1,0,0.03)
     spin.get_graph()
