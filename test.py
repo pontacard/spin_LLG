@@ -12,15 +12,15 @@ print(pulse[0][0])
 
 print(t_eval)
 new_pulse = []
-counter = 0
+
 for t in t_eval:
-    print(t)
-    if pulse[counter][0] <= t and pulse[counter][1] >= t:
-        new_pulse.append([t,pulse[counter][2]])
-
-
-    else:
-        counter += 1
+    flag = 1
+    for Bi in pulse:
+        if Bi[0] <= t and Bi[1] >= t:
+            new_pulse.append([t,Bi[2]])
+            flag = 0
+            break
+    if flag:
         new_pulse.append([t, [0,0,0]])
 
 print(new_pulse)
