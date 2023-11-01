@@ -3,8 +3,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from SOT import SOT
 class SOT_2D(SOT):
-    def __init__(self,alpha,gamma,B,S0,t,t_eval,spin_flow,K,sc,fi,start,stop):
-        super().__init__(alpha,gamma,B,S0,t,t_eval,spin_flow,K,sc,fi,start,stop)
+    def __init__(self,alpha,gamma,B,S0,t,t_eval,spin_flow,Kx,Ky,Kz,beta,start,stop):
+        super().__init__(alpha,gamma,B,S0,t,t_eval,spin_flow,Kx,Ky,Kz,beta,start,stop)
 
 
     def get_graph(self):
@@ -18,7 +18,7 @@ class SOT_2D(SOT):
         z = self.S[2]
         S = np.sqrt(x*x + y*y + z*z)
         #print(S)
-        plt.plot(t, S, label = "|S|", ls = "--")
+        #plt.plot(t, S, label = "|S|", ls = "--")
         #plt.savefig("reverse_|S|.png")
         #plt.plot(t,x)
         plt.plot(t, x, label="Sx")
@@ -35,17 +35,28 @@ class SOT_2D(SOT):
         #plt.axhline(color = 'k')
         plt.legend()
 
-        plt.savefig("TypeY_0-0.03_4000step_xyzS.pdf")
+        plt.savefig("TypeX_0-4_1200step_xyzS.pdf")
         plt.show()
 
 
 if __name__ == '__main__':
-    S0 = [0, 0, -1]
+    S0 = [1, 0, 0]
 
-    t = [0, 1.2]  # t(時間)が0〜100まで動き、その時のfを求める。
-    t_eval = np.linspace(*t, 4000)
+    t = [0, 4]  # t(時間)が0〜100まで動き、その時のfを求める。
+    t_eval = np.linspace(*t, 1200)
 
     plotB = [[0, 0, -1.2], [0, 0, 2.4]]
 
-    spin = SOT_2D(0.1, 28, [0.01, 0, 0], S0, t, t_eval, [0,0, -60], 84,0.1,1,0,0.03)
+    gamma = 2
+    mu_h_div_2e = [0.824, -21]
+    sta_M = [1.4, 0]  # 飽和磁化(T)で入れる
+    theta = [-2, -1]
+    j = [2.5, 11]
+    d = [1, -9]
+    Hsn = mu_h_div_2e[0] * theta[0] * j[0] / (sta_M[0] * d[0])
+    Hso = mu_h_div_2e[1] + theta[1] + j[1] - (sta_M[1] + d[1])
+    Hs = Hsn * (10 ** Hso) * 1000 / gamma  # 最後の1000はmTにするため
+    print(Hs)
+
+    spin = SOT_2D(0.02, gamma, [0, 0, 7], S0, t, t_eval, [0, -Hs, 0], 2, 0, -50, 0, 0, 1)
     spin.get_graph()
