@@ -48,7 +48,7 @@ class SOT(one_spin_gif):
                     S[0] * (self.gamma * (B_e[0] * S[2] - B_e[2] * S[0]) ) - S[1] * (
                         self.gamma * (B_e[2] * S[1] - B_e[1] * S[2])))
         dSdt = [dSxdt, dSydt, dSzdt]
-        #print(dSdt)
+        print(t)
 
         return dSdt
 
@@ -57,6 +57,15 @@ class SOT(one_spin_gif):
 
         self.Sol = sc.integrate.solve_ivp(self.func_S, self.t, self.S0, t_eval=self.t_eval)
         self.S = self.Sol.y
+        print(self.S)
+        v2 =  np.zeros(3)
+        print(v2.shape)
+        v2 = v2.reshape(3,1)
+        print(v2.shape)
+        print(self.S.shape)
+        print(np.hstack((self.S, v2)))
+
+
 
         self.quiveraa = self.ax.quiver(*self.get_spin_vec(0))
 
@@ -88,10 +97,10 @@ class SOT(one_spin_gif):
 
 
 if __name__ == '__main__':
-    S0 = [1, 0, 0]
+    S0 = [0, 0, 1]
 
     t = [0, 4]  # t(時間)が0〜100まで動き、その時のfを求める。
-    t_eval = np.linspace(*t, 300)
+    t_eval = np.linspace(*t, 600)
 
     plotB = [[0, 0, -1.2], [0, 0, 2.4]]
 
@@ -100,7 +109,7 @@ if __name__ == '__main__':
     h_div_2e = [0.329, -15]
     sta_M = [1.4, 0]   #飽和磁化(T)で入れる
     theta = [-2.2,-1]
-    j = [4.5, 11]
+    j = [4.5, 12]
     d = [1.48,-9]
     Hsn = h_div_2e[0] * theta[0] * j[0] / (sta_M[0] * d[0])
     Hso = h_div_2e[1] + theta[1] + j[1] - (sta_M[1] + d[1])
@@ -108,5 +117,5 @@ if __name__ == '__main__':
     print(Hs)
 
 
-    spin = SOT(0.01, gamma, [0, 0, mu_0 * 12], S0, t, t_eval, [0, Hs, 0], mu_0 * 4,0,- mu_0 * 41.6,0,0,1)
+    spin = SOT(0.5, gamma, [0.005, 0, 0], S0, t, t_eval, [0, Hs, 0], 0,0, mu_0 * 41.6,0,0,2)
     spin.make_gif()
