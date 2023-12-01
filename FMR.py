@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib.animation import FuncAnimation
-from one_spin_LLG import A_spin
+from one_spin.one_spin_LLG import A_spin
 
 class FMR_spin(A_spin):
     def __init__(self,alpha,gamma,B,S0,t, t_eval,Amp,omega,theta,Kx,Ky,Kz,beta,start,stop):
@@ -20,11 +20,10 @@ class FMR_spin(A_spin):
         self.theta = theta
 
     def func_S(self,t,S):  # 関数を設定
-        S = self.S
         Snorm = np.linalg.norm(S)
         Bk = np.array([self.Kx * S[0] / (Snorm * Snorm), self.Ky * S[1] / (Snorm * Snorm),self.Kz * S[2] / (Snorm * Snorm)])
         if t >= self.start and t <= self.stop:
-            B = np.array(self.B) + Bk + np.array([self.Amp[0] * np.cos(self.omega[0] * t) , self.Amp[1] * np.sin(self.omega[1] * t),self.Amp[2] * np.sin(self.omega[2] * t)])
+            B = np.array(self.B) + Bk + np.array([self.Amp[0] * np.cos(self.omega[0] * t +  self.theta[0]) , self.Amp[1] * np.sin(self.omega[1] * t + self.theta[1]),self.Amp[2] * np.sin(self.omega[2] * t + self.theta[2])])
             #print(B)
         else:
             B = np.array(self.B) + Bk
@@ -38,11 +37,11 @@ class FMR_spin(A_spin):
         return dSdt
 
 if __name__ == '__main__':
-    S0 = [0, 0, 1]
+    S0 = [4/5, 0, 3/5]
 
     t = [0,15] # t(時間)が0〜100まで動き、その時のfを求める。
-    t_eval = np.linspace(*t, 100)
+    t_eval = np.linspace(*t, 1000)
     mu_0 = 1.2
 
-    spin = FMR_spin(0.01, 0.17, [0,0,-5],S0,t,t_eval,[10,10,0],[0.8,0.8,0],[0,0,0],0 ,0 ,mu_0 * 100, 0, 0, 5,0)
+    spin = FMR_spin(0.01, 0.17, [0,0,0],S0,t,t_eval,[0,0,10000],[0,0,6.8],[0,0,0],0 ,0 ,mu_0 * 10, 0, 0, 15)
     spin.doit()
